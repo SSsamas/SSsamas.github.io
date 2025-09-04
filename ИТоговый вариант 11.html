@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Книжный магазин</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f3f4f6;
+      margin: 0;
+    }
+    .container {
+      max-width: 1280px;
+      margin-left: auto;
+      margin-right: auto;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+    header {
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    header .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 16px;
+      padding-bottom: 16px;
+    }
+    header svg {
+      width: 48px;
+      height: 48px;
+    }
+    header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-left: 8px;
+    }
+    header h1 span {
+      color: #2563eb;
+    }
+    nav a {
+      color: #4b5563;
+      text-decoration: none;
+      margin-left: 16px;
+    }
+    nav a:hover {
+      color: #2563eb;
+    }
+    main {
+      padding-top: 32px;
+      padding-bottom: 32px;
+    }
+    section {
+      margin-bottom: 48px;
+    }
+    h2 {
+      font-size: 30px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    p {
+      font-size: 18px;
+      line-height: 1.5;
+    }
+    h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .text-sm {
+      font-size: 14px;
+    }
+    .text-gray-600 {
+      color: #4b5563;
+    }
+    .grid {
+      display: grid;
+    }
+    .grid-cols-1 {
+      grid-template-columns: 1fr;
+    }
+    .sm\:grid-cols-2 {
+      grid-template-columns: 1fr 1fr;
+    }
+    .lg\:grid-cols-3 {
+      grid-template-columns: 1fr 1fr 1fr;
+    }
+    .gap-4 {
+      gap: 16px;
+    }
+    .mb-6 {
+      margin-bottom: 24px;
+    }
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 16px;
+    }
+    input, select, textarea {
+      border: 1px solid #d1d5db;
+      padding: 8px;
+      width: 100%;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    textarea {
+      height: 128px;
+    }
+    button {
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .bg-blue-600 {
+      background-color: #2563eb;
+      color: #fff;
+    }
+    .bg-blue-600:hover {
+      background-color: #1d4ed8;
+    }
+    footer {
+      background-color: #fff;
+      box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+      padding-top: 16px;
+      padding-bottom: 16px;
+      text-align: center;
+    }
+    #book-reader-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      transition: opacity 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 50;
+    }
+    #book-reader-modal.show {
+      display: flex;
+      opacity: 1;
+      pointer-events: auto;
+    }
+    #book-reader {
+      background-color: #fff;
+      border-radius: 8px;
+      padding: 24px;
+      max-width: 896px;
+      width: 100%;
+      position: relative;
+      transition: transform 0.3s ease;
+      transform: scaleX(0.8);
+    }
+    #book-reader-modal.show #book-reader {
+      transform: scale(1);
+    }
+    .page-flip {
+      animation: flip 0.5s ease forwards;
+      box-shadow: -5px 0 10px rgba(0, 0, 0, 0.3);
+      z-index: 2;
+    }
+    @keyframes flip {
+      0% { transform: perspective(1000px) rotateY(0deg); }
+      100% { transform: perspective(1000px) rotateY(-180deg); }
+    }
+    #flipping-page-1, #flipping-page-2, #flipping-page-3 {
+      transition: transform 1s ease, fill 1s ease;
+      filter: drop-shadow(2px 2px 8px rgba(0, 0, 0, 0.3));
+    }
+    #flipping-page-1.flipping {
+      animation: page-flip 1s ease forwards;
+      fill: #d4a017;
+      filter: drop-shadow(3px 3px 10px rgba(0, 0, 0, 0.4));
+      transform: scale(1.1);
+    }
+    #flipping-page-2.flipping {
+      animation: page-flip 1s ease 0.2s forwards;
+      fill: #d4a017;
+      filter: drop-shadow(3px 3px 10px rgba(0, 0, 0, 0.4));
+      transform: scale(1.1);
+    }
+    #flipping-page-3.flipping {
+      animation: page-flip 1s ease 0.4s forwards;
+      fill: #d4a017;
+      filter: drop-shadow(3px 3px 10px rgba(0, 0, 0, 0.4));
+      transform: scale(1.1);
+    }
+    @keyframes page-flip {
+      0% { transform: perspective(1000px) rotateY(0deg); }
+      100% { transform: perspective(1000px) rotateY(-180deg); }
+    }
+    .book-card {
+      transition: transform 0.3s ease;
+      position: relative;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    .book-card:hover {
+      transform: scale(1.05);
+    }
+    .book-cover-container {
+      position: relative;
+      width: 100%;
+    }
+    .book-cover {
+      aspect-ratio: 2/3;
+      object-fit: cover;
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    .book-summary {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      color: white;
+      padding: 8px;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: opacity 0.3s ease, transform 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 0.875rem;
+      overflow-y: auto;
+      backdrop-filter: blur(2px);
+    }
+    .book-cover-container:hover .book-summary {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    #page-left, #page-right {
+      box-sizing: border-box;
+      line-height: 1.5;
+      color: #333;
+      background: #fff;
+      transition: transform 0.5s ease;
+      min-height: 200px;
+      padding: 16px;
+      border: 1px solid #d1d5db;
+    }
+    #book-content {
+      min-height: 300px;
+    }
+    .space-y-4 > * + * {
+      margin-top: 16px;
+    }
+    .absolute {
+      position: absolute;
+    }
+    .top-2 {
+      top: 8px;
+    }
+    .right-2 {
+      right: 8px;
+    }
+    .text-2xl {
+      font-size: 24px;
+    }
+    .disabled\:opacity-50:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    @media (max-width: 640px) {
+      #book-content {
+        min-height: 250px;
+      }
+      .sm\:grid-cols-2 {
+        grid-template-columns: 1fr 1fr;
+      }
+      .book-summary {
+        font-size: 0.75rem;
+      }
+    }
+    @media (max-width: 400px) {
+      .sm\:grid-cols-2 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div style="display: flex; align-items: center;">
+        <svg style="width: 48px; height: 48px;" viewBox="0 0 100 100">
+          <path id="flipping-page-1" d="M10 10 H50 V90 H10 Z" fill="#f0f0f0"/>
+          <path id="flipping-page-2" d="M30 10 H70 V90 H30 Z" fill="#e0e0e0"/>
+          <path id="flipping-page-3" d="M50 10 H90 V90 H50 Z" fill="#d0d0d0"/>
+        </svg>
+        <h1>твоя <span style="color: #2563eb;">книга</span></h1>
+      </div>
+      <nav>
+        <a href="#home">Главная</a>
+        <a href="#catalog">Каталог</a>
+        <a href="#about">О нас</a>
+        <a href="#contacts">Контакты</a>
+        <a href="#news">Новости</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="home">
+      <h2>Добро пожаловать!</h2>
+      <p>Добро пожаловать в наш книжный магазин! Мы рады предложить вам доступ к книгам в электронном формате. Ищите, читайте, наслаждайтесь! Все книги доступны не бесплатно.</p>
+    </section>
+
+    <section id="catalog">
+      <h2>Каталог книг</h2>
+      <div class="mb-6">
+        <label>Поиск по названию:</label>
+        <input id="title-filter" type="text" style="border: 1px solid #d1d5db; padding: 8px; width: 100%; border-radius: 4px;">
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+        <div>
+          <label>Автор:</label>
+          <select id="author-filter" style="border: 1px solid #d1d5db; padding: 8px; width: 100%; border-radius: 4px;">
+            <option value="">Все авторы</option>
+          </select>
+        </div>
+        <div>
+          <label>Жанр:</label>
+          <select id="genre-filter" style="border: 1px solid #d1d5db; padding: 8px; width: 100%; border-radius: 4px;">
+            <option value="">Все жанры</option>
+          </select>
+        </div>
+        <div>
+          <label>Год издания:</label>
+          <input id="year-filter" type="number" style="border: 1px solid #d1d5db; padding: 8px; width: 100%; border-radius: 4px;">
+        </div>
+      </div>
+      <div id="book-list" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+    </section>
+
+    <section id="about">
+      <h2>О нас</h2>
+      <p>Наш книжный магазин был основан в 2025 году и с тех пор стал одним из ведущих магазинов в городе. Мы предлагаем широкий ассортимент книг на любой вкус и возраст.</p>
+      <p>Наша миссия - сделать чтение доступным для всех. Мы стремимся предоставить нашим клиентам лучшие книги по доступным ценам и создать уютную атмосферу для любителей литературы.</p>
+    </section>
+
+    <section id="contacts">
+      <h2>Контакты</h2>
+      <p>Адрес: г. Магнитогорск, ул. Книжная, д. 10</p>
+      <p>Телефон: +7 (495) 123-45-67</p>
+      <p>Email: info@yourbookstore.ru</p>
+      <h3>Напишите нам</h3>
+      <div class="space-y-4">
+        <input type="text" placeholder="Ваше имя" style="border: 1px solid #d1d5db; padding: 8px; width: 100%; border-radius: 4px;">
+        <input type="email" placeholder="Ваш email" style="border: 1px solid #d1d5db; padding: 8px; width: 100%; border-radius: 4px;">
+        <textarea placeholder="Ваше сообщение" style="border: 1px solid #d1d5db; padding: 8px; width: 100%; border-radius: 4px; height: 128px;"></textarea>
+        <button class="bg-blue-600" style="padding: 8px 16px; border-radius: 4px; color: #fff;">Отправить</button>
+      </div>
+    </section>
+
+    <section id="news">
+      <h2>Новости</h2>
+      <div class="space-y-4">
+        <div>
+          <h3>Новая коллекция книг</h3>
+          <p>Мы рады объявить о поступлении новой коллекции книг от известных авторов. Заходите к нам с 20 марта 2025 года!</p>
+          <p class="text-sm text-gray-600">19 марта 2025</p>
+        </div>
+        <div>
+          <h3>Скидки на бестселлеры</h3>
+          <p>Только в этом месяце - скидки до 30% на популярные бestселлеры. Успейте купить!</p>
+          <p class="text-sm text-gray-600">15 марта 2025</p>
+        </div>
+        <div>
+          <h3>Встреча с писателем</h3>
+          <p>Приглашаем на встречу с известным писателем 25 марта 2025 года в 18:00. Вход свободный!</p>
+          <p class="text-sm text-gray-600">10 марта 2025</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>© 2025 твоя книга. Все права защищены.</p>
+    </div>
+  </footer>
+
+  <div id="book-reader-modal">
+    <div id="book-reader">
+      <h2 id="reader-title"></h2>
+      <button id="close-reader" class="absolute top-2 right-2 text-2xl">✕</button>
+      <div id="book-content" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div id="page-left"></div>
+        <div id="page-right"></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; margin-top: 16px;">
+        <button id="prev-page" class="bg-blue-600 disabled:opacity-50">← Назад</button>
+        <span id="page-number" style="font-size: 18px;"></span>
+        <button id="next-page" class="bg-blue-600 disabled:opacity-50">Вперед →</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const books = [
+      {
+        id: 1,
+        title: "Война и мир",
+        author: "Лев Толстой",
+        genre: "Роман",
+        year: 1865,
+        preview: ["Страница 1: Начало эпопеи...", "Страница 2: Продолжение...", "Страница 3"],
+        hasPreview: true,
+        cover: "https://imo10.labirint.ru/books/488632/cover.jpg/242-0",
+        summary: "Эпическая сага о жизни российского общества в эпоху наполеоновских войн, переплетающая судьбы аристократов и простых людей."
+      },
+      {
+        id: 2,
+        title: "Преступление и наказание",
+        author: "Фёдор Достоевский",
+        genre: "Роман",
+        year: 1866,
+        preview: ["Страница 1: Раскольников в раздумьях...", "Страница 2: Его внутренний конфликт...", "Страница 3"],
+        hasPreview: true,
+        cover: "https://ir.ozone.ru/s3/multimedia-l/c1000/6136076025.jpg",
+        summary: "История Раскольникова, студента, который совершает убийство и сталкивается с моральными и психологическими последствиями."
+      },
+      {
+        id: 3,
+        title: "Анна Каренина",
+        author: "Лев Толстой",
+        genre: "Роман",
+        year: 1878,
+        preview: ["Страница 1: Все счастливые семьи похожи...", "Страница 2: История Анны...", "Страница 3"],
+        hasPreview: true,
+        cover: "https://cdn1.ozone.ru/s3/multimedia-1-0/7328575176.jpg",
+        summary: "Трагическая история любви Анны Карениной, разрывающейся между долгом и страстью в обществе XIX века."
+      },
+      {
+        id: 4,
+        title: "Мастер и Маргарита",
+        author: "Михаил Булгаков",
+        genre: "Фантастика",
+        year: 1967,
+        preview: ["Страница 1: В Москве появляется Воланд...", "Страница 2: Мистика и сатира...", "Страница 3"],
+        hasPreview: true,
+        cover: "https://urss.ru/covers_max/307253.jpg",
+        summary: "Мистическая и сатирическая история о дьяволе, посещающем Москву, и любви Мастера и Маргариты."
+      },
+      {
+        id: 5,
+        title: "Евгений Онегин",
+        author: "Александр Пушкин",
+        genre: "Роман в стихах",
+        year: 1833,
+        preview: ["Страница 1: Онегин в деревне...", "Страница 2: Письмо Татьяны...", "Страница 3"],
+        hasPreview: true,
+        cover: "https://babelbooksberlin.com/cdn/shop/products/ae7c0aa0fdedd2490ce01a3622413229.webp?v=1708958824",
+        summary: "Роман в стихах о жизни дворянина Евгения Онегина, его любви и разочарованиях в русском обществе."
+      },
+      {
+        id: 6,
+        title: "Идиот",
+        author: "Фёдор Достоевский",
+        genre: "Роман",
+        year: 1869,
+        preview: ["Страница 1: Князь Мышкин возвращается...", "Страница 2: Его доброта и наивность...", "Страница 3"],
+        hasPreview: true,
+        cover: "https://www.ruskniga.com/media/catalog/product/cache/5e44578c7bcfaf8897aa535acf055f26/1/5/151184_1.jpg",
+        summary: "История князя Мышкина, чья чистота и доброта сталкиваются с жестокостью и лицемерием общества."
+      },
+      {
+        id: 7,
+        title: "Отцы и дети",
+        author: "Иван Тургенев",
+        genre: "Роман",
+        year: 1862,
+        preview: ["Страница 1: Базаров приезжает в усадьбу...", "Страница 2: Споры с Павлом Петровичем...", "Страница 3"],
+        hasPreview: true,
+        cover: "https://babelbooksberlin.com/cdn/shop/products/e2987c1e37fac13040ad6294a3b520e3.webp?v=1708966650",
+        summary: "Конфликт поколений через призму нигилиста Базарова и его отношений с окружающим миром."
+      },
+      {
+        id: 8,
+        title: "Герой нашего времени",
+        author: "Михаил Лермонтов",
+        genre: "Роман",
+        year: 1840,
+        preview: ["Страница 1: Печорин в Тамани...", "Страница 2: Его размышления о судьбе...", "Страница 3"],
+        hasPreview: true,
+        cover: "https://cdn1.ozone.ru/s3/multimedia-r/6051796647.jpg",
+        summary: "Психологический портрет Печорин, молодого офицера, раздираемого внутренними противоречиями."
+      }
+    ];
+
+    function saveToLocalStorage(booksData) {
+      try {
+        localStorage.setItem('books', JSON.stringify(booksData));
+        console.log('Книги сохранены в localStorage');
+      } catch (e) {
+        console.error('Ошибка сохранения в localStorage:', e);
+      }
+    }
+
+    function loadFromLocalStorage() {
+      try {
+        const data = localStorage.getItem('books');
+        const booksData = data ? JSON.parse(data) : books;
+        console.log('Загружено книг из localStorage:', booksData.length);
+        return booksData;
+      } catch (e) {
+        console.error('Ошибка загрузки из localStorage:', e);
+        return books;
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM загружен, инициализация начата');
+      const genreFilter = document.getElementById('genre-filter');
+      const authorFilter = document.getElementById('author-filter');
+      const yearFilter = document.getElementById('year-filter');
+      const titleFilter = document.getElementById('title-filter');
+      const bookList = document.getElementById('book-list');
+      const bookReaderModal = document.getElementById('book-reader-modal');
+      const readerTitle = document.getElementById('reader-title');
+      const pageLeft = document.getElementById('page-left');
+      const pageRight = document.getElementById('page-right');
+      const prevPage = document.getElementById('prev-page');
+      const nextPage = document.getElementById('next-page');
+      const closeReader = document.getElementById('close-reader');
+      let currentBook = null;
+      let currentPage = 0;
+
+      if (!bookList || !bookReaderModal || !genreFilter || !authorFilter || !yearFilter || !titleFilter || !readerTitle || !pageLeft || !pageRight || !prevPage || !nextPage || !closeReader) {
+        console.error('Критическая ошибка: не найдены один или несколько элементов DOM', {
+          bookList: !!bookList,
+          bookReaderModal: !!bookReaderModal,
+          genreFilter: !!genreFilter,
+          authorFilter: !!authorFilter,
+          yearFilter: !!yearFilter,
+          titleFilter: !!titleFilter,
+          readerTitle: !!readerTitle,
+          pageLeft: !!pageLeft,
+          pageRight: !!pageRight,
+          prevPage: !!prevPage,
+          nextPage: !!nextPage,
+          closeReader: !!closeReader
+        });
+        return;
+      }
+
+      const booksData = loadFromLocalStorage();
+      const genres = [...new Set(booksData.map(book => book.genre))];
+      const authors = [...new Set(booksData.map(book => book.author))];
+      genres.forEach(genre => {
+        const option = document.createElement('option');
+        option.value = genre;
+        option.textContent = genre;
+        genreFilter.appendChild(option);
+      });
+      authors.forEach(author => {
+        const option = document.createElement('option');
+        option.value = author;
+        option.textContent = author;
+        authorFilter.appendChild(option);
+      });
+
+      function displayBooks(filteredBooks) {
+        bookList.innerHTML = '';
+        if (filteredBooks.length === 0) {
+          bookList.innerHTML = '<p style="text-align: center;">Книги не найдены</p>';
+          console.log('Нет книг для отображения');
+          return;
+        }
+        filteredBooks.forEach(book => {
+          const bookCard = document.createElement('div');
+          bookCard.className = 'book-card';
+          bookCard.innerHTML = `
+            <div class="book-cover-container">
+              <img src="${book.cover}" alt="${book.title}" class="book-cover">
+              <div class="book-summary">${book.summary}</div>
+            </div>
+            <div style="padding: 8px;">
+              <h3 style="font-size: 14px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${book.title}</h3>
+              <p style="font-size: 12px; color: #4b5563; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${book.author}</p>
+              <button class="preview-btn bg-blue-600" style="font-size: 12px; padding: 4px; color: white; border-radius: 4px; margin-top: 4px; width: 100%;" data-id="${book.id}">Ознакомиться</button>
+            </div>
+          `;
+          bookList.appendChild(bookCard);
+        });
+        console.log('Отображено книг:', filteredBooks.length);
+      }
+
+      function filterBooks() {
+        const genre = genreFilter.value;
+        const author = authorFilter.value;
+        const year = yearFilter.value;
+        const title = titleFilter.value.toLowerCase();
+        const filteredBooks = booksData.filter(book => 
+          (!genre || book.genre === genre) &&
+          (!author || book.author === author) &&
+          (!year || book.year === parseInt(year)) &&
+          (!title || book.title.toLowerCase().includes(title))
+        );
+        displayBooks(filteredBooks);
+        console.log('Фильтрация выполнена:', { genre, author, year, title, filteredCount: filteredBooks.length });
+      }
+
+      function updateNavigationButtons() {
+        prevPage.disabled = currentPage === 0;
+        nextPage.disabled = currentPage + 2 >= (currentBook.preview?.length || 0);
+        document.getElementById('page-number').textContent = currentBook.preview ? `${currentPage + 1} / ${currentBook.preview.length}` : '0 / 0';
+      }
+
+      function updatePages() {
+        if (!currentBook || !currentBook.preview || currentBook.preview.length === 0) {
+          console.error('Нет книги или preview:', currentBook);
+          pageLeft.textContent = 'Ошибка: текст не найден';
+          pageRight.textContent = '';
+          updateNavigationButtons();
+          return;
+        }
+        pageLeft.textContent = currentBook.preview[currentPage] || 'Нет текста';
+        pageRight.textContent = currentBook.preview[currentPage + 1] || '';
+        pageLeft.classList.remove('page-flip');
+        pageRight.classList.remove('page-flip');
+        updateNavigationButtons();
+        console.log('Страницы обновлены:', { currentPage, left: pageLeft.textContent, right: pageRight.textContent });
+      }
+
+      bookList.addEventListener('click', (e) => {
+        if (e.target.classList.contains('preview-btn')) {
+          const bookId = parseInt(e.target.dataset.id);
+          currentBook = booksData.find(book => book.id === bookId);
+          if (!currentBook || !currentBook.preview) {
+            console.error('Книга не найдена или отсутствует preview:', bookId);
+            pageLeft.textContent = 'Ошибка: текст не найден';
+            pageRight.textContent = '';
+            updateNavigationButtons();
+            return;
+          }
+          currentPage = 0;
+          readerTitle.textContent = currentBook.title;
+          bookReaderModal.classList.remove('hidden');
+          setTimeout(() => {
+            bookReaderModal.classList.add('show');
+            updatePages();
+          }, 10);
+          console.log('Открыта книга:', currentBook.title);
+        }
+      });
+
+      closeReader.addEventListener('click', () => {
+        bookReaderModal.classList.remove('show');
+        setTimeout(() => {
+          bookReaderModal.classList.add('hidden');
+          currentBook = null;
+          currentPage = 0;
+        }, 300);
+        console.log('Читалка закрыта');
+      });
+
+      nextPage.addEventListener('click', () => {
+        if (currentBook && currentPage + 2 < currentBook.preview.length) {
+          pageRight.classList.add('page-flip');
+          setTimeout(() => {
+            currentPage += 2;
+            updatePages();
+          }, 500);
+          console.log('Перелистывание вперед:', currentPage + 2);
+        }
+      });
+
+      prevPage.addEventListener('click', () => {
+        if (currentBook && currentPage > 0) {
+          pageLeft.classList.add('page-flip');
+          setTimeout(() => {
+            currentPage -= 2;
+            updatePages();
+          }, 500);
+          console.log('Перелистывание назад:', currentPage - 2);
+        }
+      });
+
+      let idleTimer;
+      function startIdleTimer() {
+        idleTimer = setTimeout(() => {
+          const page1 = document.getElementById('flipping-page-1');
+          const page2 = document.getElementById('flipping-page-2');
+          const page3 = document.getElementById('flipping-page-3');
+          console.log('Начата анимация логотипа');
+          page1.classList.add('flipping');
+          setTimeout(() => page2.classList.add('flipping'), 200);
+          setTimeout(() => page3.classList.add('flipping'), 400);
+          setTimeout(() => {
+            page1.classList.remove('flipping');
+            page2.classList.remove('flipping');
+            page3.classList.remove('flipping');
+            console.log('Анимация логотипа завершена');
+          }, 2000);
+        }, 10000);
+      }
+
+      function resetIdleTimer() {
+        clearTimeout(idleTimer);
+        startIdleTimer();
+      }
+
+      document.addEventListener('mousemove', resetIdleTimer);
+      document.addEventListener('click', resetIdleTimer);
+      startIdleTimer();
+
+      console.log('Добавление обработчиков событий для фильтров');
+      genreFilter.addEventListener('change', filterBooks);
+      authorFilter.addEventListener('change', filterBooks);
+      yearFilter.addEventListener('input', filterBooks);
+      titleFilter.addEventListener('input', filterBooks);
+      saveToLocalStorage(booksData);
+      displayBooks(booksData);
+      console.log('Инициализация завершена');
+    });
+  </script>
+</body>
+</html>
