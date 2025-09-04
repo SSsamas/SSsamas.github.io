@@ -196,16 +196,15 @@
       100% { transform: perspective(1000px) rotateY(-180deg); }
     }
     .book-card {
-      transition: transform 0.3s ease;
-      position: relative;
-      background-color: #fff;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      overflow: hidden;
-    }
-    .book-card:hover {
-      transform: scale(1.05);
-    }
+  transition: box-shadow 0.3s ease, transform 0.3s ease;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.book-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 0 20px rgba(37, 99, 235, 0.3); 
+  transform: translateY(-4px); 
+}
     .book-cover-container {
       position: relative;
       width: 100%;
